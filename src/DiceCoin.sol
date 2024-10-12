@@ -4,7 +4,11 @@ pragma solidity 0.8.23;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract DiceCoin is ERC20 {
+/// @title DiceCoin: A wager token.
+/// @author Joel Markley
+/// @notice DiceCoin is a wager token. The user can collect an initial pot of coins to play with and then they can wager those tokens on whether a dice roll will be: even or odd (x2 payout),
+/// or a specific number 1-6 (x5 payout).
+contract DiceCoin is ERC20NOEXTERNALS {
     // DC Events
     event WagerWon(uint256 payout);
     event WagerLost(uint256 wager);
@@ -25,17 +29,12 @@ contract DiceCoin is ERC20 {
 
     uint256 randNonce = 0;
 
-    constructor() ERC20("Dice Coin", "DC") {
+    constructor() ERC20NOEXTERNALS("Dice Coin", "DC") {
         _mint(address(this), INITIAL_SUPPLY);
 
         // Set wager multipliers
         getWagerMultiplier[WagerType.evenOdd] = _payoutEvenOrOdd;
         getWagerMultiplier[WagerType.exact] = _payoutExact;
-    }
-
-    modifier _senderIsContract() {
-        require(_msgSender() == address(this));
-        _;
     }
 
     modifier _wagerIsValid(
@@ -55,28 +54,8 @@ contract DiceCoin is ERC20 {
         _;
     }
 
-    function transfer(
-        address to,
-        uint256 value
-    ) public override _senderIsContract returns (bool) {
-        return super.transfer(to, value);
-    }
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) public override _senderIsContract returns (bool) {
-        return super.transferFrom(from, to, value);
-    }
-
-    function approve(
-        address sender,
-        uint256 value
-    ) public override _senderIsContract returns (bool) {
-        return super.approve(sender, value);
-    }
-
+    /// @notice Returns a users DC wallet balance
+    /// @return uint256 DC wallet balance
     function getDCWallet() public view returns (uint256) {
         return balanceOf(_msgSender());
     }
@@ -94,6 +73,8 @@ contract DiceCoin is ERC20 {
         return true;
     }
 
+    /// @notice Gets the payout of a wage given a WagerType
+    /// @return uint256 amount of DC
     function _getPayout(
         uint256 wager,
         WagerType wagerType
@@ -101,7 +82,10 @@ contract DiceCoin is ERC20 {
         return wager * getWagerMultiplier[wagerType];
     }
 
-    function _randMod(uint _modulus) private returns (uint) {
+    /// @notice Func used to generate a "random" number
+    /// @param _modulus max (exclusive) number to generate a random number for
+    /// @return uint256 representing "random" number (0, _modulus)
+    function _randMod(uint256 _modulus) private returns (uint256) {
         randNonce++;
         return
             uint(
