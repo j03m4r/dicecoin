@@ -51,6 +51,13 @@ contract TestDiceCoin is Test {
         }
     }
 
+    function testRandNonce() public {
+        uint256 r1 = DC.randNonce();
+        DC._generateRandRoll();
+        uint256 r2 = DC.randNonce();
+        assertEq(r1 + 1, r2);
+    }
+
     function testPlaceExactWager() public {
         DC.buyIn();
 

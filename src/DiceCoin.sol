@@ -27,7 +27,7 @@ contract DiceCoin is ERC20NOEXTERNALS {
     }
     mapping(WagerType => uint256) private getWagerMultiplier;
 
-    uint256 randNonce = 0;
+    uint256 public randNonce = 0;
 
     constructor() ERC20NOEXTERNALS("Dice Coin", "DC") {
         _mint(address(this), INITIAL_SUPPLY);
@@ -42,15 +42,6 @@ contract DiceCoin is ERC20NOEXTERNALS {
         uint256 roll,
         WagerType wagerType
     ) {
-        address sender = _msgSender();
-
-        if (wager < 0) {
-            revert NegativeWager();
-        } 
-
-        if (wagerType == WagerType.exact) {
-            require(roll >= 0 && roll <= 6);
-        }
         _;
     }
 
@@ -95,7 +86,7 @@ contract DiceCoin is ERC20NOEXTERNALS {
             ) % _modulus;
     }
 
-    function _generateRandRoll() private returns (uint256) {
+    function _generateRandRoll() public returns (uint256) {
         return _randMod(6) + 1;
     }
 
@@ -120,7 +111,7 @@ contract DiceCoin is ERC20NOEXTERNALS {
     function placeWager(
         uint256 wager,
         bool isEven
-    ) public _wagerIsValid(wager, 0, WagerType.evenOdd) returns (uint256) {
+    ) public returns (uint256) {
         uint256 roll = _generateRandRoll();
         if ((roll % 2 == 0 && isEven) || (roll % 2 == 1 && !isEven)) {
             // Sender won wager
@@ -139,7 +130,8 @@ contract DiceCoin is ERC20NOEXTERNALS {
     function placeWager(
         uint256 wager,
         uint256 num
-    ) public _wagerIsValid(wager, num, WagerType.exact) returns (uint256) {
+    ) public returns (uint256) {
+        require(num >= 0 && num <= 6);
         uint256 roll = _generateRandRoll();
         if (roll == num) {
             _wagerWon(wager, WagerType.exact);
