@@ -37,14 +37,6 @@ contract DiceCoin is ERC20NOEXTERNALS {
         getWagerMultiplier[WagerType.exact] = _payoutExact;
     }
 
-    modifier _wagerIsValid(
-        uint256 wager,
-        uint256 roll,
-        WagerType wagerType
-    ) {
-        _;
-    }
-
     /// @notice Returns a users DC wallet balance
     /// @return uint256 DC wallet balance
     function getDCWallet() public view returns (uint256) {
